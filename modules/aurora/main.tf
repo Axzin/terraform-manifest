@@ -110,6 +110,9 @@ resource "aws_rds_cluster_instance" "aurora_writer" {
 
   auto_minor_version_upgrade = true
 
+  # パブリックアクセスを有効化（開発環境用）
+  publicly_accessible = true
+
   tags = {
     Name        = "${var.environment}-aurora-writer"
     Environment = var.environment
@@ -129,6 +132,9 @@ resource "aws_rds_cluster_instance" "aurora_reader" {
   db_parameter_group_name = aws_db_parameter_group.aurora.name
 
   auto_minor_version_upgrade = true
+
+  # パブリックアクセスを有効化（開発環境用）
+  publicly_accessible = true
 
   tags = {
     Name        = "${var.environment}-aurora-reader"

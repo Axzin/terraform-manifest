@@ -20,6 +20,28 @@ resource "aws_internet_gateway" "main" {
   }
 }
 
+# Elastic IP for NAT Gateway
+resource "aws_eip" "nat" {
+  domain = "vpc"
+  tags = {
+    Name        = "${var.environment}-nat-eip"
+    Environment = var.environment
+  }
+}
+
+# NAT Gateway
+resource "aws_nat_gateway" "main" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.public[0].id
+
+  tags = {
+    Name        = "${var.environment}-nat-gateway"
+    Environment = var.environment
+  }
+
+  depends_on = [aws_internet_gateway.main]
+}
+
 # Public Subnets
 resource "aws_subnet" "public" {
   count             = length(var.public_subnets)
@@ -67,6 +89,11 @@ resource "aws_route_table" "public" {
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.main.id
+  }
+
   tags = {
     Name        = "${var.environment}-private-rt"
     Environment = var.environment
@@ -87,16 +114,26 @@ resource "aws_route_table_association" "private" {
   route_table_id = aws_route_table.private.id
 }
 
-# Security Group for RDS/Aurora
+# Security Group for RDS/Aurora (開発環境用 - 本番環境では制限してください)
 resource "aws_security_group" "database" {
   name_prefix = "${var.environment}-database-sg"
   vpc_id      = aws_vpc.main.id
 
+  # VPC内からのアクセス
   ingress {
     from_port   = 3306
     to_port     = 3306
     protocol    = "tcp"
     cidr_blocks = [var.vpc_cidr]
+  }
+
+  # ローカル環境からのアクセス（開発環境用）
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Local development access"
   }
 
   egress {
