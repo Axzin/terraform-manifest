@@ -1,0 +1,63 @@
+# AWS設定
+aws_region = "ap-northeast-1"
+environment = "dev"
+
+# VPC設定
+vpc_cidr = "10.0.0.0/16"
+availability_zones = ["ap-northeast-1a", "ap-northeast-1c"]
+private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
+public_subnets = ["10.0.101.0/24", "10.0.102.0/24"]
+
+# Aurora設定
+aurora_cluster_identifier = "user-database-cluster"
+aurora_db_name = "user_database"
+aurora_db_username = "admin"
+aurora_db_password = "your-secure-aurora-password-here"  # 実際のパスワードに変更してください
+aurora_instance_class = "db.r6g.large"
+aurora_engine_version = "8.0.mysql_aurora.3.04.1"
+
+# AppSync設定
+appsync_api_name = "user-database-graphql-api"
+appsync_authentication_type = "API_KEY"
+appsync_schema = <<EOF
+type Activity {
+  id: ID!
+  author: String!
+  timestamp: String!
+  weather: String
+  health: String
+  steps: Int!
+}
+
+type Buy {
+  id: ID!
+  author: String!
+  timestamp: String!
+  item_name: String!
+  item_price: Int!
+}
+
+type Query {
+  hello: String
+  activities: [Activity!]!
+  activitiesByUser(author: String!): [Activity!]!
+  buys: [Buy!]!
+  buysByUser(author: String!): [Buy!]!
+}
+
+type Mutation {
+  createActivity(
+    author: String!
+    timestamp: String!
+    weather: String
+    health: String
+    steps: Int!
+  ): Activity!
+  createBuy(
+    author: String!
+    timestamp: String!
+    item_name: String!
+    item_price: Int!
+  ): Buy!
+}
+EOF 
