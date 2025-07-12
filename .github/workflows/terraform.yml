@@ -45,7 +45,7 @@ jobs:
       - name: Terraform init
         run: terraform init
 
-      # dry run 実行
+      # dryrun 実行
       - name: Terraform Plan
         run: terraform plan -out=tfplan
 
