@@ -53,4 +53,4 @@ jobs:
 
       # deploy 実行
       - name: Terraform apply
-        run: terraform apply -auto-approve tfplan -var="aurora_db_password=${{secrets.DB_PASSWORD}}"
+        run: terraform apply -auto-approve tfplan
