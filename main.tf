@@ -53,3 +53,56 @@ module "appsync" {
   database_secret_arn        = module.aurora.database_secret_arn
   database_name              = module.aurora.database_name
 } 
+
+# 最新のUbuntu 20.04 LTS AMIを取得
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  owners      = ["099720109477"] # Canonical
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+}
+
+# EC2用セキュリティグループ（SSH許可）
+resource "aws_security_group" "ec2_ssh" {
+  name        = "ec2-ssh"
+  description = "Allow SSH from anywhere (change to your IP for security)"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # セキュリティのため自分のIPに限定推奨
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# Ubuntu EC2インスタンス（Prisma CLIセットアップ付き）
+resource "aws_instance" "bastion" {
+  ami                         = data.aws_ami.ubuntu.id
+  instance_type               = "t3.micro"
+  subnet_id                   = module.vpc.public_subnet_ids[0]
+  vpc_security_group_ids      = [aws_security_group.ec2_ssh.id]
+  key_name                    = "yomi4486"
+  associate_public_ip_address = true
+
+  tags = {
+    Name = "bastion"
+  }
+
+  user_data = <<-EOF
+    #!/bin/bash
+    apt-get update -y
+    apt-get install -y curl nodejs npm
+    npm install -g prisma
+  EOF
+} 
