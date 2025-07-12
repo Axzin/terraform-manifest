@@ -47,8 +47,8 @@ jobs:
 
       # dryrun 実行
       - name: Terraform Plan
-        run: terraform plan -out=tfplan
+        run: terraform plan -out=tfplan -var="aurora_db_password=${{secrets.DB_PASSWORD}}"
 
       # deploy 実行
       - name: Terraform apply
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply -auto-approve tfplan -var="aurora_db_password=${{secrets.DB_PASSWORD}}"
