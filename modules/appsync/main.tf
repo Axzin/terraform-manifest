@@ -18,7 +18,7 @@ resource "aws_appsync_api_key" "main" {
 
 # IAM Role for AppSync to access RDS
 resource "aws_iam_role" "appsync_rds_role" {
-  name = "${var.environment}-appsync-rds-role"
+  name = "${var.environment}-appsync-rds-role-namechange"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
