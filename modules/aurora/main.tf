@@ -66,6 +66,25 @@ resource "aws_secretsmanager_secret_version" "database" {
   })
 }
 
+resource "aws_secretsmanager_secret_policy" "aurora_secret_policy" {
+  secret_arn = aws_secretsmanager_secret.database.arn
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          AWS = "arn:aws:iam::281844808229:user/terraform_user"
+        },
+        Action = "secretsmanager:DescribeSecret",
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+
 # Aurora Cluster
 resource "aws_rds_cluster" "aurora" {
   cluster_identifier = var.cluster_identifier
