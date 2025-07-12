@@ -10,8 +10,7 @@ terraform {
 
 provider "aws" {
   region = var.aws_region
-  # ローカル開発時のみプロファイルを使用（GitHub Actionsでは環境変数を使用）
-  profile = var.use_profile ? var.aws_profile : null
+  # GitHub Actionsでは環境変数で認証するため、profile指定は不要
 }
 
 # VPCとネットワーク設定
