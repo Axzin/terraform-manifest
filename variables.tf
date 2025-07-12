@@ -8,7 +8,13 @@ variable "aws_region" {
 variable "aws_profile" {
   description = "AWS profile to use"
   type        = string
-  default     = "terraform-user"
+  default     = "default"
+}
+
+variable "use_profile" {
+  description = "Whether to use AWS profile (set to false in CI/CD environments)"
+  type        = bool
+  default     = true
 }
 
 variable "environment" {
